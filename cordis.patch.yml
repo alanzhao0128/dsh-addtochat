@@ -1,0 +1,12 @@
+# dsh-addtochat bundle patch
+#
+# `dsh.bundle.patch` layer of the published package: when installed through
+# the official CLI —
+#
+#   dsh plugin --profile web add dsh-addtochat
+#
+# — the command appends this single `insert` (one plugin row) to the bundle
+# stack, exactly like a manual cordis.patch.yml mount line. No profile edits.
+- insert:
+    - id: addtochat
+      name: 'dsh-addtochat'
