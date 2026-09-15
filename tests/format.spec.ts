@@ -1,43 +1,39 @@
 import { describe, expect, it } from 'vitest'
-import { appendQuote, buildQuote, floatPosition, labelOf } from '../src/client/format.ts'
+import { appendBlock, buildBlock, floatPosition, labelOf } from '../src/client/format.ts'
 
-describe('buildQuote', () => {
-  it('prefixes a single line with "> "', () => {
-    expect(buildQuote('hello')).toBe('> hello')
+describe('buildBlock', () => {
+  it('wraps a single line in a fenced code block', () => {
+    expect(buildBlock('hello')).toBe('```\nhello\n```')
   })
 
-  it('prefixes every line of a multi-line selection', () => {
-    expect(buildQuote('line one\nline two')).toBe('> line one\n> line two')
+  it('wraps a multi-line selection verbatim', () => {
+    expect(buildBlock('line one\nline two')).toBe('```\nline one\nline two\n```')
   })
 
   it('returns empty string for empty input', () => {
-    expect(buildQuote('')).toBe('')
+    expect(buildBlock('')).toBe('')
   })
 
-  it('does not double-prefix lines that are already quotes', () => {
-    expect(buildQuote('> already')).toBe('> already')
-  })
-
-  it('trims nothing — selection text is taken verbatim', () => {
-    expect(buildQuote('  spaced  ')).toBe('>   spaced  ')
+  it('does not trim the selection text', () => {
+    expect(buildBlock('  spaced  ')).toBe('```\n  spaced  \n```')
   })
 })
 
-describe('appendQuote', () => {
-  it('returns the bare quote when the draft is empty', () => {
-    expect(appendQuote('', '> hello')).toBe('> hello')
+describe('appendBlock', () => {
+  it('returns the bare block (plus trailing newline) when the draft is empty', () => {
+    expect(appendBlock('', '```\nhello\n```')).toBe('```\nhello\n```\n')
   })
 
-  it('returns the bare quote when the draft is whitespace', () => {
-    expect(appendQuote('   \n  ', '> hello')).toBe('> hello')
+  it('returns the bare block when the draft is whitespace', () => {
+    expect(appendBlock('   \n  ', '```\nhello\n```')).toBe('```\nhello\n```\n')
   })
 
-  it('appends the quote after the user text with a blank line between', () => {
-    expect(appendQuote('my question', '> hello')).toBe('my question\n\n> hello')
+  it('appends the block after the user text with a blank line between', () => {
+    expect(appendBlock('my question', '```\nhello\n```')).toBe('my question\n\n```\nhello\n```\n')
   })
 
   it('preserves user text verbatim (only outer whitespace trimmed)', () => {
-    expect(appendQuote('  q1  ', '> a\n> b')).toBe('q1\n\n> a\n> b')
+    expect(appendBlock('  q1  ', '```\na\nb\n```')).toBe('q1\n\n```\na\nb\n```\n')
   })
 })
 

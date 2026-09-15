@@ -1,11 +1,11 @@
 # dsh-addtochat
 
 Select text inside a conversation reply and add it to the composer input as a
-markdown quote — one button replaces select → copy → paste.
+fenced code block — one button replaces select → copy → paste.
 
 ![interaction: select a reply → floating button "添加到会话" / "add to chat"
 appears above the selection → click → the selection is appended to the main
-input as a `>` quote block → type your question → Enter]
+input as a ``` ``` ``` block → type your question → Enter]
 
 ## What it does
 
@@ -13,9 +13,11 @@ input as a `>` quote block → type your question → Enter]
 2. A small floating button appears above the selection:
    - Chinese UI: `添加到会话`
    - anything else: `add to chat`
-3. Click it: the selected text lands in the main composer as a markdown
-   quote block (`> ` per line). Anything you already typed stays below it.
-4. Type your question and hit Enter — the quote block rides along with your
+3. Click it: the selected text lands in the main composer wrapped in a
+   fenced code block (```` ``` ```` on its own lines), followed by a blank
+   line — anything you already typed stays above it, and your next keystroke
+   starts right below the fence.
+4. Type your question and hit Enter — the block rides along with your
    normal submission.
 
 That is the whole feature. No badges, no bubbles, no persistence, no reply
@@ -61,7 +63,7 @@ pnpm build    # host ESM + browser client bundle (lib/)
 - `src/client/index.tsx` — apply(): selection controller, overlay host,
   floating button, `conversation.input.dock` slot entry.
 - `src/client/selection.ts` — selection capture + validation.
-- `src/client/format.ts` — pure helpers (quote building, draft append, label,
+- `src/client/format.ts` — pure helpers (block building, draft append, label,
   button placement).
 - `src/client/bridge.ts` — dock-slot → overlay bridge for the official
   composer faces.

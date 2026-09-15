@@ -12,8 +12,8 @@
 export interface ComposerApi {
   /** Replace the whole draft (official inputActions.setDraft). */
   setDraft(text: string): void
-  /** Append a quote block to the current draft, preserving user text. */
-  appendQuote(quote: string): void
+  /** Append a fenced block to the current draft, preserving user text. */
+  appendBlock(block: string): void
 }
 
 let current: ComposerApi | null = null

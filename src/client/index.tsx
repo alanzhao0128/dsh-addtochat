@@ -1,7 +1,7 @@
 /**
  * dsh-addtochat client half: select text inside a conversation reply, a small
  * floating button appears above the selection ("添加到会话" / "add to chat"),
- * one click appends the selection into the main composer as a markdown quote
+ * one click appends the selection into the main composer as a fenced code
  * block (existing user text is preserved below it) — the user then types
  * their question and hits Enter as usual.
  *
@@ -20,7 +20,7 @@ import type {
   AddToChatInputActions, AddToChatUseInput, Context,
 } from '../types.ts'
 import { createSelectionController } from './selection.ts'
-import { appendQuote, buildQuote, labelOf } from './format.ts'
+import { appendBlock, buildBlock, labelOf } from './format.ts'
 import { registerComposer, composerApi } from './bridge.ts'
 import { AddToChatFloat } from './AddToChatFloat.tsx'
 import './addtochat.css'
@@ -62,7 +62,7 @@ function DockSlotFull({ inputActions, useInput }: {
   useEffect(() => (
     registerComposer({
       setDraft: (text) => inputActions.setDraft(text),
-      appendQuote: (quote) => inputActions.setDraft(appendQuote(draftRef.current, quote)),
+      appendBlock: (block) => inputActions.setDraft(appendBlock(draftRef.current, block)),
     })
   ), [inputActions])
 
@@ -101,7 +101,7 @@ export function apply(ctx: Context): void {
             label={labelOf(activeLocale)}
             onAdd={(sel) => {
               const api = composerApi()
-              if (api !== null) api.appendQuote(buildQuote(sel.text))
+              if (api !== null) api.appendBlock(buildBlock(sel.text))
               // Drop the DOM selection too, so a later selectionchange cannot
               // resurrect the float for the same (now stale) selection.
               window.getSelection()?.removeAllRanges()

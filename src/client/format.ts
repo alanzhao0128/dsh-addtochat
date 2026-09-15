@@ -4,27 +4,26 @@
  */
 
 /**
- * Turn selected text into a markdown quote block: every line prefixed with
- * "> ". Multi-line selections stay inside one quoted block (GFM requires a
- * "> " per line).
+ * Turn selected text into a fenced code block (` ``` ` on its own lines),
+ * which renders distinctly from prose in the composer and in the sent
+ * message. Empty input yields an empty string (nothing to wrap).
  */
-export function buildQuote(text: string): string {
+export function buildBlock(text: string): string {
   if (text === '') return ''
-  return text
-    .split('\n')
-    .map((line) => (line.startsWith('> ') ? line : `> ${line}`))
-    .join('\n')
+  return '```\n' + text + '\n```'
 }
 
 /**
- * Append a quote block to the existing composer draft, preserving whatever the
- * user already typed. An empty draft yields the bare quote; otherwise the two
- * are separated by a blank line so the quote reads as its own block.
+ * Append a fenced block to the existing composer draft, preserving whatever
+ * the user already typed. An empty draft yields the bare block; otherwise
+ * the two are separated by a blank line. The block is always followed by a
+ * trailing newline, so the user's next keystroke starts on a fresh line
+ * right below the fence.
  */
-export function appendQuote(draft: string, quote: string): string {
+export function appendBlock(draft: string, block: string): string {
   const trimmed = draft.trim()
-  if (trimmed === '') return quote
-  return `${trimmed}\n\n${quote}`
+  const base = trimmed === '' ? block : `${trimmed}\n\n${block}`
+  return `${base}\n`
 }
 
 /**
