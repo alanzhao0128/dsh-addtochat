@@ -34,6 +34,16 @@ export function labelOf(active: string | undefined): string {
   return active === 'zh' ? '添加到会话' : 'add to chat'
 }
 
+/**
+ * Primary language subtag of a BCP 47-style tag, lowercased ('zh-CN' → 'zh',
+ * 'en-US' → 'en', '' → ''). The dsh locale service writes the active locale
+ * into `<html lang>` as 'zh-CN' for Chinese and the bare id otherwise, so the
+ * primary subtag is the locale signal this plugin compares.
+ */
+export function primarySubtag(tag: string): string {
+  return tag.trim().split('-')[0]?.toLowerCase() ?? ''
+}
+
 export interface FloatRect {
   readonly left: number
   readonly top: number

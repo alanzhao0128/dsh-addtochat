@@ -11,7 +11,7 @@
  * OFFICIAL `inputActions.setDraft` face injected into the
  * `conversation.input.dock` slot (ui-conversation), bridged to the overlay
  * host. The plugin never submits anything itself — the user's normal Enter
- * does, with the quote block riding along.
+ * does, with the fenced block riding along.
  */
 
 import { createRoot, type Root } from 'react-dom/client'
@@ -20,7 +20,7 @@ import type {
   AddToChatInputActions, AddToChatUseInput, Context,
 } from '../types.ts'
 import { createSelectionController } from './selection.ts'
-import { appendBlock, buildBlock, labelOf } from './format.ts'
+import { appendBlock, buildBlock, labelOf, primarySubtag } from './format.ts'
 import { registerComposer, composerApi } from './bridge.ts'
 import { AddToChatFloat } from './AddToChatFloat.tsx'
 import './addtochat.css'
@@ -75,10 +75,29 @@ export function apply(ctx: Context): void {
   console.log('[dsh-addtochat] apply() running')
   document.body.setAttribute('data-dsh-addtochat', 'loaded')
 
-  // Active dsh locale ('zh' → Chinese label, anything else → English).
-  // Written inside the optional 'locale' injection; the float re-renders so
-  // an open button switches its label live.
-  let activeLocale: string | undefined
+  // Active dsh locale ('zh' → Chinese label, anything else → English), read
+  // from the <html lang> attribute the dsh locale service maintains
+  // ('zh-CN' for Chinese, the bare locale id otherwise). The document signal
+  // is authoritative for third-party bundles — the cordis 'locale' service
+  // is not reliably reachable through dynamic inject. A MutationObserver
+  // keeps an open float's label in sync when the dsh language changes.
+  const readActiveLocale = (): string | undefined => {
+    const lang = document.documentElement.getAttribute('lang')
+    if (lang !== null && lang.trim() !== '') {
+      const primary = primarySubtag(lang)
+      if (primary !== '') return primary
+    }
+    return primarySubtag(navigator.language) || undefined
+  }
+  let activeLocale: string | undefined = readActiveLocale()
+  const localeObserver = new MutationObserver(() => {
+    const next = readActiveLocale()
+    if (next !== activeLocale) {
+      activeLocale = next
+      render()
+    }
+  })
+  localeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] })
 
   const selectionController = createSelectionController()
 
@@ -93,6 +112,10 @@ export function apply(ctx: Context): void {
     const selection = selectionController.getSnapshot().selection
     // No float while the composer faces are unavailable (dock slot not yet
     // mounted): the button would have nothing to write to.
+    // Diagnostic attributes (observable state, harmless to leave on):
+    // data-dsat-locale = active locale id, data-dsat-composer = 1/0.
+    host.dataset.locale = activeLocale ?? ''
+    host.dataset.composer = composerApi() !== null ? '1' : '0'
     root.render(
       selection !== null && composerApi() !== null
         ? (
@@ -129,16 +152,6 @@ export function apply(ctx: Context): void {
 
   const offSelection = selectionController.subscribe(render)
 
-  // Language: attach zh/en label when the locale service is present.
-  ctx.inject?.(['locale'], (lctx: Context) => {
-    const applyLocale = (): void => {
-      activeLocale = lctx.locale?.getSnapshot().active
-      render()
-    }
-    applyLocale()
-    lctx.effect(() => () => { activeLocale = undefined }, 'dsh-addtochat: locale reset')
-  })
-
   // Dock slot: receives the official composer faces and hands them to the
   // float. The slot frameworks declare their specs after plugin apply() runs,
   // so slots.inject waits for the declaration — never a hard gate: without
@@ -158,6 +171,7 @@ export function apply(ctx: Context): void {
   ctx.effect(() => () => {
     offDock()
     offSelection()
+    localeObserver.disconnect()
     window.removeEventListener('scroll', hide, true)
     window.removeEventListener('resize', hide)
     document.removeEventListener('mousedown', onMouseDown)

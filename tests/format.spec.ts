@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { appendBlock, buildBlock, floatPosition, labelOf } from '../src/client/format.ts'
+import {
+  appendBlock, buildBlock, floatPosition, labelOf, primarySubtag,
+} from '../src/client/format.ts'
 
 describe('buildBlock', () => {
   it('wraps a single line in a fenced code block', () => {
@@ -46,6 +48,23 @@ describe('labelOf', () => {
     expect(labelOf('en')).toBe('add to chat')
     expect(labelOf('ja')).toBe('add to chat')
     expect(labelOf(undefined)).toBe('add to chat')
+  })
+})
+
+describe('primarySubtag', () => {
+  it('extracts the primary subtag of a regional tag', () => {
+    expect(primarySubtag('zh-CN')).toBe('zh')
+    expect(primarySubtag('en-US')).toBe('en')
+  })
+
+  it('passes bare tags through lowercased', () => {
+    expect(primarySubtag('ZH')).toBe('zh')
+    expect(primarySubtag('en')).toBe('en')
+  })
+
+  it('returns empty string for empty input', () => {
+    expect(primarySubtag('')).toBe('')
+    expect(primarySubtag('   ')).toBe('')
   })
 })
 
