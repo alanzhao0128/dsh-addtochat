@@ -1,9 +1,28 @@
 {
   "name": "dsh-addtochat",
   "version": "0.1.0",
-  "description": "DSH web plugin: select text in a conversation and add it to the composer input as a markdown quote — one button replaces select-copy-paste. Zero-hack: browser selection + official inputActions.setDraft, no persistence, no overlays.",
+  "description": "DSH web plugin: select text in a conversation reply and add it to the composer input as a fenced code block — one button replaces select-copy-paste. Zero-hack: browser Selection API + the official inputActions.setDraft face; no persistence, no overlays, no reply tracking.",
   "type": "module",
   "license": "MIT",
+  "author": "alanzhao0128",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alanzhao0128/dsh-addtochat.git"
+  },
+  "homepage": "https://github.com/alanzhao0128/dsh-addtochat#readme",
+  "bugs": {
+    "url": "https://github.com/alanzhao0128/dsh-addtochat/issues"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "deepseek",
+    "selection",
+    "quote",
+    "composer",
+    "web-plugin"
+  ],
   "main": "lib/index.js",
   "types": "lib/types/index.d.ts",
   "exports": {
@@ -13,10 +32,6 @@
     },
     "./client": {
       "types": "./lib/types/client/index.d.ts",
-      "default": "./lib/client.js"
-    },
-    "./client/service": {
-      "types": "./lib/types/client/service.d.ts",
       "default": "./lib/client.js"
     },
     "./src/*": "./src/*",
@@ -40,7 +55,7 @@
   "files": [
     "lib/index.js",
     "lib/client.js",
-    "lib/client-registry.js",
+    "lib/client.js.map",
     "lib/types/**/*.d.ts",
     "src",
     "cordis.patch.yml",
